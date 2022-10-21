@@ -5,6 +5,7 @@ function TodoList() {
     const [desc, setDesc] = useState('');
     const [todos, setTodos] = useState([]);
     const [date, setDate] = useState('');
+    const [id, setId] = useState(-1);
 
     const inputChanged1 = (event) => {
         setDesc(event.target.value);
@@ -15,8 +16,16 @@ function TodoList() {
     }
 
     const addTodo = (event) => {
-        setTodos([...todos, { date: date, desc: desc }]);
+        setId(id + 1);
+        setTodos([...todos, { id: id, date: date, desc: desc }]);
     }
+
+    const deleteRow = (id) => {
+        setTodos((current) =>
+            current.filter((todos) =>
+                todos.id !== id)
+        );
+    };
 
     return (
         <div>
@@ -29,11 +38,13 @@ function TodoList() {
             <table>
                 <tbody>
                     <tr><th>Date</th><th>Description</th></tr>
-                    {todos.map((todo, index) =>
-                        <tr key={index}>
+                    {todos.map((todo) =>
+                        <tr key={todo.id}>
                             <td>{todo.date} </td>
                             <td>{todo.desc}</td>
-                        </tr>)}
+                            <td><button onClick={(e) => deleteRow(todo.id)}> Delete </button> </td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
         </div>
