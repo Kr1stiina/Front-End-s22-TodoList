@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import TodoTable from './TodoTable';
 
 function TodoList() {
 
@@ -17,7 +18,7 @@ function TodoList() {
 
     const addTodo = (event) => {
         setId(id + 1);
-        setTodos([...todos, { id: id, date: date, desc: desc }]);
+        setTodos([...todos, { id: id, date: date, desc: desc, }]);
     }
 
     const deleteRow = (id) => {
@@ -35,18 +36,9 @@ function TodoList() {
                 Description: <input type="text" onChange={inputChanged1} value={desc} />
                 <button onClick={addTodo}>Add</button>
             </h4>
-            <table>
-                <tbody>
-                    <tr><th>Date</th><th>Description</th></tr>
-                    {todos.map((todo) =>
-                        <tr key={todo.id}>
-                            <td>{todo.date} </td>
-                            <td>{todo.desc}</td>
-                            <td><button onClick={(e) => deleteRow(todo.id)}> Delete </button> </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
+
+            <TodoTable todos={todos} delete={deleteRow} />
+
         </div>
     );
 }
