@@ -1,46 +1,64 @@
-import React, { useState } from 'react';
-import TodoTable from './TodoTable';
+import React, { useState, useRef } from 'react';
+import { AgGridReact } from 'ag-grid-react'
+import 'ag-grid-community/dist/styles/ag-grid.css'
+import 'ag-grid-community/dist/styles/ag-theme-material.css';
 
-function TodoList() {
+function Todolist() {
 
-    const [desc, setDesc] = useState('');
+    const [todo, setTodo] = useState({ description: '', date: '', priority: '' });
     const [todos, setTodos] = useState([]);
-    const [date, setDate] = useState('');
-    const [id, setId] = useState(-1);
+    const gridRef = useRef();
 
-    const inputChanged1 = (event) => {
-        setDesc(event.target.value);
-    }
+    const columns = [
+        { field: "description", sortable: true, filter: true, floatingFilter: true, rowDrag: true },
+        { field: "date", sortable: true, filter: true, floatingFilter: true },
+        {
+            field: "priority", sortable: true, filter: true, floatingFilter: true,
+            cellStyle: params => params.value === "High" ? { color: 'red' } : { color: 'black' }
+        }
+    ]
 
-    const inputChanged2 = (event) => {
-        setDate(event.target.value);
+    const inputChanged = (event) => {
+        setTodo({ ...todo, [event.target.name]: event.target.value });
     }
 
     const addTodo = (event) => {
-        setId(id + 1);
-        setTodos([...todos, { id: id, date: date, desc: desc, }]);
+        setTodos([...todos, todo]);
     }
 
-    const deleteRow = (id) => {
-        setTodos((current) =>
-            current.filter((todos) =>
-                todos.id !== id)
-        );
-    };
+    const deleteTodo = () => {
+        if (gridRef.current.getSelectedNodes().length > 0) {
+            setTodos(todos.filter((todo, index) =>
+                index !== gridRef.current.getSelectedNodes()[0].childIndex))
+        } else {
+            alert('Select row first');
+        }
+    }
 
     return (
-        <div>
-            <h3> Add ToDo: </h3>
-            <h4>
-                Date: <input type="date" onChange={inputChanged2} value={date} />
-                Description: <input type="text" onChange={inputChanged1} value={desc} />
-                <button onClick={addTodo}>Add</button>
-            </h4>
 
-            <TodoTable todos={todos} delete={deleteRow} />
+        <div className="ag-theme-material"
+            style={{ height: '700px', width: '70%', margin: 'auto', }}>
+
+            <input type="text" onChange={inputChanged} placeholder="Description" name="description" value={todo.description} />
+            <input type="date" onChange={inputChanged} placeholder="Date" name="date" value={todo.date} />
+            <input type="text" onChange={inputChanged} placeholder="Priority" name="priority" value={todo.priority} />
+            <button onClick={addTodo}>Add</button>
+            <button onClick={deleteTodo}>Delete</button>
+
+            <AgGridReact
+                ref={gridRef}
+                onGridReady={params => gridRef.current = params.api}
+                rowSelection="single"
+                columnDefs={columns}
+                rowData={todos}
+                animateRows={true}
+                rowDragManaged={true}
+            >
+            </AgGridReact>
 
         </div>
     );
-}
+};
 
-export default TodoList;
+export default Todolist;
